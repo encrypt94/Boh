@@ -41,15 +41,32 @@ boh_check() {
     }
 }
 
+# Parse the yaml frontmatter and returns a string ready for eval
+# First sed extract the frontmatter
+# Second sed removes frontmatter's delimiter
+# Third sed transform yaml in shell evaluable code (lol: asd -> lol="asd")
+# Kudos to stackoverflow users for this magic
+
+parse_frontmatter(){
+    frontmatter=`cat $1 | sed -n '1{/^---/{:a N;/\n---/!ba;p}}' | sed '1d;$d' | sed -e 's/:[^:\/\/]/="/g;s/$/"/g;s/ *=/=/g'`
+    echo $frontmatter
+}
+
 boh_build() {
     echo "Building all the things..."
     for file in `find . -type f -name "*.md"`; do
+	template="page"
 	title=`echo $file | rev | cut -d / -f 1 | rev | sed s/.md//`
-	body=`cat $file | markdown`
+	# sed removes the yaml frontmatter
+	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | markdown`
 	newpath="./_site/"`echo $file | rev | cut -d . -f 2 | rev`".html"
+	frontmatter=`parse_frontmatter $file`
+	if [  "$frontmatter" ];then
+	    eval $frontmatter
+	fi
 	mkdir -p "${newpath%/*}"
 	export title body
-	envsubst < "_templates/page.tpl" > "$newpath"
+	envsubst < "_templates/$template.tpl" > "$newpath"
 	unset title body
     done
     cp -R _assets/* _site/

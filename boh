@@ -4,12 +4,12 @@ boh_help() {
     printf "Usage: boh COMMAND [arg...]\n"
     printf "\nTransform a bounch of markdown files into html\n"
     printf "\nCommands:\n"
-    printf "\tinit\tInitialize a dir with basic tpl\n"
+    printf "\tnew\tInitialize a dir with basic tpl\n"
     printf "\tbuild\tBuild the things\n"
     printf "\tserve\tStart python simple httpd in teh dir\n"
 }
 
-boh_init() {
+boh_new() {
     mkdir _site _assets _templates
     cat <<EOF > _templates/page.tpl
 <!doctype html>
@@ -32,7 +32,7 @@ boh_serve() {
 
 boh_check() {
     if [ ! -d "_templates" ];then
-	>&2 echo "'_templates' directory not found. Maybe you should 'boh init'"
+	>&2 echo "'_templates' directory not found. Maybe you should 'boh new'"
 	exit 1
     fi
     type markdown &> /dev/null || {
@@ -84,8 +84,8 @@ case $1 in
 	boh_check
 	boh_build
 	;;
-    "init")
-	boh_init
+    "new")
+	boh_new
 	;;
     "serve")
 	boh_serve

@@ -1,0 +1,73 @@
+#!/bin/sh
+
+boh_help() {
+    printf "Usage: boh COMMAND [arg...]\n"
+    printf "\nTransform a bounch of markdown files into html\n"
+    printf "\nCommands:\n"
+    printf "\tinit\tInitialize a dir with basic tpl\n"
+    printf "\tbuild\tBuild the things\n"
+    printf "\tserve\tStart python simple httpd in teh dir\n"
+}
+
+boh_init() {
+    mkdir _site _assets _templates
+    cat <<EOF > _templates/page.tpl
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>\$title</title>
+  </head>
+  <body>
+      \$body
+  </body>
+</html>
+EOF
+}
+
+boh_serve() {
+    cd _site
+    python2 -m SimpleHTTPServer
+}
+
+boh_check() {
+    type markdown &> /dev/null || {
+	>&2 echo "'markdown' is not installed"
+	exit 1
+    }
+    type envsubst &> /dev/null || {
+	>&2 echo "'envsubst' is not installed, install 'gettext' package"
+	exit 1
+    }
+}
+
+boh_build() {
+    echo "Building all the things..."
+    for file in `find . -type f -name "*.md"`; do
+	title=`echo $file | rev | cut -d / -f 1 | rev | sed s/.md//`
+	body=`cat $file | markdown`
+	newpath="./_site/"`echo $file | rev | cut -d . -f 2 | rev`".html"
+	mkdir -p "${newpath%/*}"
+	export title body
+	envsubst < "_templates/page.tpl" > "$newpath"
+	unset title body
+    done
+    cp -R _assets/* _site/
+    echo "Yay!"
+}
+
+boh_check
+case $1 in
+    "build")
+	boh_build
+	;;
+    "init")
+	boh_init
+	;;
+    "serve")
+	boh_serve
+	;;
+    *)
+	boh_help
+	;;
+esac

@@ -10,8 +10,8 @@ boh_help() {
 }
 
 boh_new() {
-    mkdir _site _assets _templates
-    cat <<EOF > _templates/page.tpl
+    mkdir _site _assets _layouts
+    cat <<EOF > _layouts/page.tpl
 <!doctype html>
 <html lang="en">
   <head>
@@ -31,8 +31,8 @@ boh_serve() {
 }
 
 boh_check() {
-    if [ ! -d "_templates" ];then
-	>&2 echo "'_templates' directory not found. Maybe you should 'boh new'"
+    if [ ! -d "_layouts" ];then
+	>&2 echo "'_layouts' directory not found. Maybe you should 'boh new'"
 	exit 1
     fi
     type markdown &> /dev/null || {
@@ -59,18 +59,18 @@ parse_frontmatter(){
 boh_build() {
     echo "Building all the things..."
     for file in `find . -type f -name "*.md"`; do
-	template="page"
+	layout="page"
 	title=`echo $file | rev | cut -d / -f 1 | rev | sed s/.md//`
 	# sed removes the yaml frontmatter
 	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | markdown`
 	newpath="./_site/"`echo $file | rev | cut -d . -f 2 | rev`".html"
 	frontmatter=`parse_frontmatter $file`
-	if [  "$frontmatter" ];then
+	if [ "$frontmatter" ];then
 	    eval $frontmatter
 	fi
 	mkdir -p "${newpath%/*}"
 	export title body
-	envsubst < "_templates/$template.tpl" > "$newpath"
+	envsubst < "_layouts/$layout.tpl" > "$newpath"
 	unset title body
     done
     if [ -d "_assets" ];then

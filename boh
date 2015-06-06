@@ -31,6 +31,10 @@ boh_serve() {
 }
 
 boh_check() {
+    if [ ! -d "_templates" ];then
+	>&2 echo "'_templates' directory not found. Maybe you should 'boh init'"
+	exit 1
+    fi
     type markdown &> /dev/null || {
 	>&2 echo "'markdown' is not installed"
 	exit 1
@@ -69,13 +73,15 @@ boh_build() {
 	envsubst < "_templates/$template.tpl" > "$newpath"
 	unset title body
     done
-    cp -R _assets/* _site/
+    if [ -d "_assets" ];then
+	cp -R _assets/* _site/
+    fi
     echo "Yay!"
 }
 
-boh_check
 case $1 in
     "build")
+	boh_check
 	boh_build
 	;;
     "init")

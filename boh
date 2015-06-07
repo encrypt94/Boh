@@ -15,7 +15,7 @@ boh_help() {
 
 boh_new() {
     mkdir $destination_dir $layouts_dir
-    cat <<EOF > "$layouts_dir"/page.html
+    cat <<EOF > "$layouts_dir"/default.html
 <!doctype html>
 <html lang="en">
   <head>
@@ -68,7 +68,7 @@ boh_build() {
     # extra "/" is used to increment the final count by 1
     trim_at=`echo "/"$source_dir | fold -w 1 | grep -c /`
     for file in `find $source_dir -type f -name "*.md"`; do
-	layout="page"
+	layout="default"
 	title=`echo $file | rev | cut -d / -f 1 | rev | sed s/.md//`
 	# sed removes the yaml frontmatter
 	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | markdown`

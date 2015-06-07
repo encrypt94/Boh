@@ -14,7 +14,7 @@ boh_help() {
 }
 
 boh_new() {
-    mkdir _site _assets _layouts
+    mkdir _site _layouts
     cat <<EOF > _layouts/page.html
 <!doctype html>
 <html lang="en">
@@ -83,9 +83,6 @@ boh_build() {
 	unset title body
     done
     type boh_post_build &> /dev/null && { boh_post_build; }
-    if [ -d "$source_dir/_assets" ];then
-	cp -R "$source_dir/_assets/"* "$destination_dir"
-    fi
     echo "Yay!"
 }
 

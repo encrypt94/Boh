@@ -4,9 +4,9 @@ boh_help() {
     printf "Usage: boh COMMAND [arg...]\n"
     printf "\nTransform a bounch of markdown files into html\n"
     printf "\nOptions:\n"
-    printf "\t-s [DIR]\tSource directory (defaults to ./)\n"
-    printf "\t-d [DIR]\tDestination directory (defaults to ./_site)\n"
-    printf "\t-l [DIR]\tLayouts directory (defaults to ./_layouts)\n"
+    printf "\t-s, --source [DIR]        Source directory (defaults to ./)\n"
+    printf "\t-d, --destination [DIR]   Destination directory (defaults to ./_site)\n"
+    printf "\t-l, --layouts [DIR]       Layouts directory (defaults to ./_layouts)\n"
     printf "\nCommands:\n"
     printf "\tbuild, b             Build your pages\n"
     printf "\tserve, server, s     Serve your pages locally\n"
@@ -35,8 +35,8 @@ boh_serve() {
 }
 
 boh_check() {
-    if [ ! -d "_layouts" ];then
-	>&2 echo "'_layouts' directory not found. Maybe you should 'boh new'"
+    if [ ! -d $layouts_dir ];then
+	>&2 echo "'$layouts_dir' directory not found. Maybe you should 'boh new'"
 	exit 1
     fi
     type markdown &> /dev/null || {
@@ -62,28 +62,60 @@ parse_frontmatter(){
 
 boh_build() {
     echo "Building all the things..."
-    for file in `find . -type f -name "*.md"`; do
+    rm -rf $destination_dir
+    mkdir $destination_dir
+    for file in `find $source_dir -type f -name "*.md"`; do
 	layout="page"
 	title=`echo $file | rev | cut -d / -f 1 | rev | sed s/.md//`
 	# sed removes the yaml frontmatter
 	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | markdown`
-	newpath="./_site/"`echo $file | rev | cut -d . -f 2 | rev`".html"
+	newpath="./$destination_dir/"`echo $file | rev | cut -d . -f 2 | rev`".html"
 	frontmatter=`parse_frontmatter $file`
 	if [ "$frontmatter" ];then
 	    eval $frontmatter
 	fi
 	mkdir -p "${newpath%/*}"
 	export title body
-	envsubst < "_layouts/$layout.tpl" > "$newpath"
+	envsubst < "$layouts_dir/$layout.tpl" > "$newpath"
 	unset title body
     done
-    if [ -d "_assets" ];then
-	cp -R _assets/* _site/
+    if [ -d "$source_dir/_assets" ];then
+	cp -R "$source_dir/_assets/"* "$destination_dir"
     fi
     echo "Yay!"
 }
 
-case $1 in
+## defaults
+source_dir="./"
+destination_dir="./_site"
+layouts_dir="./_layouts"
+
+command=$1
+shift
+for arg in "$@"
+do
+    case $arg in
+	-s=*|--source=*)
+	    source_dir="${arg#*=}"
+	    source_dir="`eval echo ${source_dir//>}`"
+	    shift
+	    ;;
+	-d=*|--destination=*)
+	    destination_dir="${arg#*=}"
+	    destination_dir="`eval echo ${destination_dir//>}`"
+	    shift
+	    ;;
+	-l=*|--layouts=*)
+	    layouts_dir="${arg#*=}"
+	    layouts_dir="`eval echo ${layouts_dir//>}`"
+	    shift
+	    ;;
+	*)
+	    ;;
+    esac
+done
+
+case $command in
     "build"|"b")
 	boh_check
 	boh_build

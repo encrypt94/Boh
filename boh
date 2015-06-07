@@ -3,10 +3,14 @@
 boh_help() {
     printf "Usage: boh COMMAND [arg...]\n"
     printf "\nTransform a bounch of markdown files into html\n"
+    printf "\nOptions:\n"
+    printf "\t-s [DIR]\tSource directory (defaults to ./)\n"
+    printf "\t-d [DIR]\tDestination directory (defaults to ./_site)\n"
+    printf "\t-l [DIR]\tLayouts directory (defaults to ./_layouts)\n"
     printf "\nCommands:\n"
-    printf "\tnew\tInitialize a dir with basic tpl\n"
-    printf "\tbuild\tBuild the things\n"
-    printf "\tserve\tStart python simple httpd in teh dir\n"
+    printf "\tbuild, b             Build your pages\n"
+    printf "\tserve, server, s     Serve your pages locally\n"
+    printf "\tnew                  Creates boh basic stuff\n"
 }
 
 boh_new() {
@@ -80,14 +84,14 @@ boh_build() {
 }
 
 case $1 in
-    "build")
+    "build"|"b")
 	boh_check
 	boh_build
 	;;
     "new")
 	boh_new
 	;;
-    "serve")
+    "serve"|"server"|"s")
 	boh_serve
 	;;
     *)

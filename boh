@@ -64,6 +64,7 @@ boh_build() {
     echo "Building all the things..."
     rm -rf $destination_dir
     mkdir $destination_dir
+    type boh_pre_build &> /dev/null && { boh_pre_build; }
     # extra "/" is used to increment the final count by 1
     trim_at=`echo "/"$source_dir | fold -w 1 | grep -c /`
     for file in `find $source_dir -type f -name "*.md"`; do
@@ -81,6 +82,7 @@ boh_build() {
 	envsubst < "$layouts_dir/$layout.tpl" > "$newpath"
 	unset title body
     done
+    type boh_post_build &> /dev/null && { boh_post_build; }
     if [ -d "$source_dir/_assets" ];then
 	cp -R "$source_dir/_assets/"* "$destination_dir"
     fi

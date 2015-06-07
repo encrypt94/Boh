@@ -15,7 +15,7 @@ boh_help() {
 
 boh_new() {
     mkdir _site _assets _layouts
-    cat <<EOF > _layouts/page.tpl
+    cat <<EOF > _layouts/page.html
 <!doctype html>
 <html lang="en">
   <head>
@@ -79,7 +79,7 @@ boh_build() {
 	fi
 	mkdir -p "${newpath%/*}"
 	export title body
-	envsubst < "$layouts_dir/$layout.tpl" > "$newpath"
+	envsubst < "$layouts_dir/$layout.html" > "$newpath"
 	unset title body
     done
     type boh_post_build &> /dev/null && { boh_post_build; }

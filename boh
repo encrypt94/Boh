@@ -120,6 +120,9 @@ done
 case $command in
     "build"|"b")
 	boh_check
+	if [ -f $source_dir"/boh.config" ];then
+	    source $source_dir"/boh.config"
+	fi
 	boh_build
 	;;
     "new")

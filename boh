@@ -1,16 +1,16 @@
 #!/bin/sh
 
 boh_help() {
-    printf "Usage: boh COMMAND [arg...]\n"
-    printf "\nTransform a bounch of markdown files into html\n"
-    printf "\nOptions:\n"
-    printf "\t-s, --source [DIR]        Source directory (defaults to ./)\n"
-    printf "\t-d, --destination [DIR]   Destination directory (defaults to ./_site)\n"
-    printf "\t-l, --layouts [DIR]       Layouts directory (defaults to ./_layouts)\n"
-    printf "\nCommands:\n"
-    printf "\tbuild, b             Build your pages\n"
-    printf "\tserve, server, s     Serve your pages locally\n"
-    printf "\tnew                  Creates boh basic stuff\n"
+    echo "Usage: boh COMMAND [options...]"
+    echo "Transform your markdown documents into html"
+    echo "Options:"
+    echo "  -s, --source [DIR]        Source directory (defaults to ./)"
+    echo "  -d, --destination [DIR]   Destination directory (defaults to ./_site)"
+    echo "  -l, --layouts [DIR]       Layouts directory (defaults to ./_layouts)"
+    echo "Commands:"
+    echo "  build, b             Build your pages"
+    echo "  serve, server, s     Serve your pages locally"
+    echo "  new                  Creates boh basic stuff"
 }
 
 boh_new() {
@@ -64,12 +64,14 @@ boh_build() {
     echo "Building all the things..."
     rm -rf $destination_dir
     mkdir $destination_dir
+    # extra "/" is used to increment the final count by 1
+    trim_at=`echo "/"$source_dir | fold -w 1 | grep -c /`
     for file in `find $source_dir -type f -name "*.md"`; do
 	layout="page"
 	title=`echo $file | rev | cut -d / -f 1 | rev | sed s/.md//`
 	# sed removes the yaml frontmatter
 	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | markdown`
-	newpath="./$destination_dir/"`echo $file | rev | cut -d . -f 2 | rev`".html"
+	newpath="$destination_dir/"`echo $file | rev | cut -d . -f 2 | rev | cut -d / -f $trim_at-`".html"
 	frontmatter=`parse_frontmatter $file`
 	if [ "$frontmatter" ];then
 	    eval $frontmatter

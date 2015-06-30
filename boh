@@ -69,6 +69,11 @@ parse_frontmatter(){
     echo $frontmatter
 }
 
+boh_markdown() {
+    md=which cmark || which markdown || which Markdown.pl
+    `$md`
+}
+
 boh_build() {
     echo "Building all the things..."
     rm -rf $destination_dir
@@ -80,7 +85,7 @@ boh_build() {
 	layout="default"
 	title=`echo $file | rev | cut -d / -f 1 | rev | sed s/.md//`
 	# sed removes the yaml frontmatter
-	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | markdown`
+	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | boh_markdown`
 	newpath="$destination_dir/"`echo $file | rev | cut -d . -f 2 | rev | cut -d / -f $cut_at-`".html"
 	frontmatter=`parse_frontmatter $file`
 	if [ "$frontmatter" ];then

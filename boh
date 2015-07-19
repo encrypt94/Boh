@@ -76,8 +76,8 @@ boh_markdown() {
 
 boh_build() {
     echo "Building all the things..."
-    rm -rf $destination_dir
-    mkdir $destination_dir
+    rm -rf $destination_dir/*
+    mkdir -p $destination_dir
     type boh_pre_build &> /dev/null && { boh_pre_build; }
     # extra "/" is used to increment the final count by 1
     cut_at=`echo "/"$source_dir | fold -w 1 | grep -c /`

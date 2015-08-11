@@ -70,8 +70,7 @@ parse_frontmatter(){
 }
 
 boh_markdown() {
-    md=which cmark || which markdown || which Markdown.pl
-    `$md`
+    cmark || markdown || Markdown.pl
 }
 
 boh_build() {

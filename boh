@@ -64,7 +64,7 @@ boh_check() {
 # Third sed transform yaml in shell evaluable code (lol: asd -> lol="asd")
 # Kudos to stackoverflow users for this magic
 
-parse_frontmatter(){
+boh_parse_frontmatter(){
     frontmatter=`cat $1 | sed -n '1{/^---/{:a N;/\n---/!ba;p}}' | sed '1d;$d' | sed -e 's/:[^:\/\/]/="/g;s/$/"/g;s/ *=/=/g'`
     echo $frontmatter
 }
@@ -86,7 +86,7 @@ boh_build() {
 	# sed removes the yaml frontmatter
 	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | boh_markdown`
 	newpath="$destination_dir/"`echo $file | rev | cut -d . -f 2 | rev | cut -d / -f $cut_at-`".html"
-	frontmatter=`parse_frontmatter $file`
+	frontmatter=`boh_parse_frontmatter $file`
 	if [ "$frontmatter" ];then
 	    eval $frontmatter
 	fi

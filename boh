@@ -65,7 +65,7 @@ boh_check() {
 # Kudos to stackoverflow users for this magic
 
 boh_parse_frontmatter(){
-    frontmatter=`cat $1 | sed -n '1{/^---/{:a N;/\n---/!ba;p}}' | sed '1d;$d' | sed -e 's/:[^:\/\/]/="/g;s/$/"/g;s/ *=/=/g'`
+    frontmatter=`cat "$1" | sed -n '1{/^---/{:a N;/\n---/!ba;p}}' | sed '1d;$d' | sed -e 's/:[^:\/\/]/="/g;s/$/"/g;s/ *=/=/g'`
     echo $frontmatter
 }
 
@@ -80,13 +80,14 @@ boh_build() {
     type boh_pre_build &> /dev/null && { boh_pre_build; }
     # extra "/" is used to increment the final count by 1
     cut_at=`echo "/"$source_dir | fold -w 1 | grep -c /`
-    for file in `find $source_dir -type f -name "*.md"`; do
+    find $source_dir -type f -name "*.md" | while read file
+    do
 	layout="default"
-	title=`echo $file | rev | cut -d / -f 1 | rev | sed s/.md//`
+	title=`echo "$file" | rev | cut -d / -f 1 | rev | sed s/.md//`
 	# sed removes the yaml frontmatter
-	body=`cat $file | sed '1{/^---/{:a N;/\n---/!ba;d}}' | boh_markdown`
-	newpath="$destination_dir/"`echo $file | rev | cut -d . -f 2 | rev | cut -d / -f $cut_at-`".html"
-	frontmatter=`boh_parse_frontmatter $file`
+	body=`cat "$file" | sed '1{/^---/{:a N;/\n---/!ba;d}}' | boh_markdown`
+	newpath="$destination_dir/"`echo "$file" | rev | cut -d . -f 2 | rev | cut -d / -f $cut_at-`".html"
+	frontmatter=`boh_parse_frontmatter "$file"`
 	if [ "$frontmatter" ];then
 	    eval $frontmatter
 	fi
